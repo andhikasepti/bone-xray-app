@@ -1,0 +1,1 @@
+Taruh dataset.xlsx di sini (folder data/), serta subfolder images/ dan Annotations/ (unduh sesuai lisensi BTXRD).

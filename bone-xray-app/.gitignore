@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+*.egg-info/
+
+# Data & model (jangan commit file besar ke GitHub)
+data/images/*
+data/Annotations/*
+!data/images/.gitkeep
+!data/Annotations/.gitkeep
+data/*.xlsx
+models/*.pt
+models/*.h5
+*.ipynb_checkpoints/
+
+# Hasil training sementara
+runs/
+yolo_dataset/
+masks/
+
+# OS/editor
+.DS_Store
+.vscode/
