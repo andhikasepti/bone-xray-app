@@ -13,7 +13,9 @@ Cara pakai:
 """
 
 import argparse
+import random
 
+import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, random_split
@@ -21,6 +23,15 @@ from torchvision import models
 
 from dataset import BoneXrayDataset
 from preprocess import get_train_transform, get_eval_transform
+
+
+def set_seed(seed=42):
+    """Kunci semua sumber keacakan supaya hasil training konsisten tiap run
+    (split train/val, inisialisasi bobot, urutan data saat shuffle)."""
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
 
 
 def build_model(num_classes=2, freeze_backbone=True):
@@ -80,7 +91,10 @@ def main():
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--out", default="models/classifier_baseline.pt")
+    parser.add_argument("--seed", type=int, default=42, help="Seed untuk hasil yang konsisten tiap run")
     args = parser.parse_args()
+
+    set_seed(args.seed)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Menggunakan device: {device}")
@@ -91,7 +105,8 @@ def main():
     full_dataset = BoneXrayDataset(args.excel, args.images, transform=get_train_transform())
     val_size = int(0.2 * len(full_dataset))
     train_size = len(full_dataset) - val_size
-    train_ds, val_ds = random_split(full_dataset, [train_size, val_size])
+    generator = torch.Generator().manual_seed(args.seed)
+    train_ds, val_ds = random_split(full_dataset, [train_size, val_size], generator=generator)
     val_ds.dataset.transform = get_eval_transform()
 
     print(f"Distribusi kelas (seluruh data): {full_dataset.class_counts()}")
